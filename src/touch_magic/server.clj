@@ -4,7 +4,7 @@
              [org.httpkit.timer :refer [schedule-task]]
              [cheshire.core :refer :all]
              [compojure.route :refer [not-found resources]]
-             [compojure.handler :refer [site]] ; form, query params decode; cookie; session, etc
+             [compojure.handler :refer [site]]
              [compojure.core :refer [defroutes GET POST DELETE ANY context]]))
 
 ;; 接続したチャネルを記録するマップ

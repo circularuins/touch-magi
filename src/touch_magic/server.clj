@@ -17,6 +17,13 @@
 ;; mapが空ではないことを判別するユーザー定義関数
 (def not-empty? (complement empty?))
 
+(defn delete-all
+  []
+  (reset! game-channel-hub {})
+  (reset! player1-data {})
+  (reset! player2-data {})
+  (reset! complete-data-change false))
+
 (defn send-data
   [channel data]
   (send!
@@ -47,7 +54,7 @@
     (on-close channel (fn [status]
                         (println "チャネル閉鎖")
                         (swap! game-channel-hub dissoc channel) ;ハブからチャネルを削除
-                        (reset! complete-data-change true)
+                        (reset! complete-data-change false)
                         ))
     ;; 接続開始時の処理
     (if (websocket? channel)
@@ -58,6 +65,9 @@
     (on-receive
      channel
      (fn [data]
+       ;; リセットコードが来た場合
+       (if (= data "h8ze@91bmkfp3")
+         (delete-all))
        (if @complete-data-change
          ;; データ交換済の場合
          (cond

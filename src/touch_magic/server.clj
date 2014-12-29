@@ -65,29 +65,31 @@
     (on-receive
      channel
      (fn [data]
-       ;; リセットコードが来た場合
        (if (= data "h8ze@91bmkfp3")
-         (delete-all))
-       (if @complete-data-change
+         ;; リセットコードが来た場合データを全部消す
+         (delete-all)
+         ;;通常データの場合
+         (if @complete-data-change
          ;; データ交換済の場合
-         (cond
-          (= channel (first (keys @game-channel-hub))) (send-data (second (keys @game-channel-hub)) data)
-          (= channel (second (keys @game-channel-hub))) (send-data (first (keys @game-channel-hub)) data))
-         ;; データ交換済でない場合
-         (cond
-          ;; データが空の時
-          (and (empty? @player1-data) (empty? @player2-data))
-          ;; データ1に書き込む
-          (swap! player1-data assoc channel data)
-          ;; データ1のみ埋まっている時
-          (and (not-empty? @player1-data) (empty? @player2-data))
-          (if (= (first (keys @player1-data)) channel)
-            ;; 同一チャネルのデータが来たらデータ1を上書き
-            (do
-              (reset! player1-data {})
-              (swap! player1-data assoc channel data))
-            ;; 別チャネルのデータが来たらデータ2に書き込む
-            (swap! player2-data assoc channel data))))
+           (cond
+            (= channel (first (keys @game-channel-hub))) (send-data (second (keys @game-channel-hub)) data)
+            (= channel (second (keys @game-channel-hub))) (send-data (first (keys @game-channel-hub)) data))
+           ;; データ交換済でない場合
+           (cond
+            ;; データが空の時
+            (and (empty? @player1-data) (empty? @player2-data))
+            ;; データ1に書き込む
+            (swap! player1-data assoc channel data)
+            ;; データ1のみ埋まっている時
+            (and (not-empty? @player1-data) (empty? @player2-data))
+            (if (= (first (keys @player1-data)) channel)
+              ;; 同一チャネルのデータが来たらデータ1を上書き
+              (do
+                (reset! player1-data {})
+                (swap! player1-data assoc channel data))
+              ;; 別チャネルのデータが来たらデータ2に書き込む
+              (swap! player2-data assoc channel data)))))
+       
 
        ;; データ1とデータ2が揃った時、
        ;; データ1をプレイヤー2に、データ2をプレイヤー1に配信する
